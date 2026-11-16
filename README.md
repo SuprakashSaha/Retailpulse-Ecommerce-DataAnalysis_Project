@@ -135,12 +135,7 @@ RetailPulse_Analytics/
 │
 ├── Dashboard/
 │   ├── RetailPulse.pbix
-│   ├── RetailPulse.pdf
-│   
-│       
-│       
-│       
-│       
+│   ├── RetailPulse.pdf    
 │
 └── dataset/
     └── raw data.zip
@@ -266,55 +261,7 @@ SQL techniques used: joins (including `FULL` and `LEFT`), CTEs, `LAG` window fun
 23. Lowest-rated products, categories and segments, and where to improve
 </details>
 
-**Example query: discount impact on margin (Q7)**
 
-```sql
-SELECT
-    CASE
-        WHEN oi.discount_percentage = 0  THEN '0%'
-        WHEN oi.discount_percentage <= 5  THEN '0-5%'
-        WHEN oi.discount_percentage <= 10 THEN '5-10%'
-        WHEN oi.discount_percentage <= 15 THEN '10-15%'
-        WHEN oi.discount_percentage <= 20 THEN '15-20%'
-        WHEN oi.discount_percentage <= 30 THEN '20-30%'
-        ELSE '30%+'
-    END AS discount_band,
-    COUNT(*)                                   AS order_lines,
-    SUM(oi.quantity)                           AS units_sold,
-    ROUND(SUM(oi.item_revenue)::numeric, 2)    AS revenue,
-    ROUND(SUM(oi.profit)::numeric, 2)          AS profit,
-    ROUND((100.0 * SUM(oi.profit) / SUM(oi.item_revenue))::numeric, 2) AS margin_pct
-FROM order_items oi
-JOIN orders o ON o.order_id = oi.order_id
-WHERE o.order_status <> 'Failed'
-GROUP BY 1
-ORDER BY MIN(oi.discount_percentage);
-```
-
-**Example query: month-on-month and year-on-year growth (Q1)**
-
-```sql
-WITH monthly_sales AS (
-    SELECT DATE_TRUNC('month', o.order_date) AS months,
-           SUM(oi.item_revenue)              AS monthly_revenue
-    FROM orders o
-    JOIN order_items oi USING (order_id)
-    GROUP BY 1
-),
-growth AS (
-    SELECT *,
-           LAG(monthly_revenue, 1)  OVER (ORDER BY months) AS prev_month,
-           LAG(monthly_revenue, 12) OVER (ORDER BY months) AS prev_year
-    FROM monthly_sales
-)
-SELECT *,
-       ROUND((monthly_revenue - prev_month) * 100.0 / NULLIF(prev_month, 0), 2) AS mom_growth,
-       ROUND((monthly_revenue - prev_year)  * 100.0 / NULLIF(prev_year, 0), 2)  AS yoy_growth
-FROM growth
-ORDER BY months;
-```
-
----
 
 ## 9. Power BI dashboards
 
@@ -331,7 +278,7 @@ Data was loaded from PostgreSQL through Power Query. A calendar table (2023 to 2
 
 **1. Executive Dashboard**
 
-![Executive Dashboard](Dashboard/screenshots/dashboard_1_executive.png)
+![Executive Dashboard](Dashboard_preview/dashboard_1_executive.png)
 
 **2. Product & Category Performance**
 
@@ -339,11 +286,11 @@ Data was loaded from PostgreSQL through Power Query. A calendar table (2023 to 2
 
 **3. Customer Insights & Retention**
 
-![Customer Insights and Retention](Dashboard/screenshots/dashboard_3_customer.png)
+![Customer Insights and Retention](Dashboard_preview/dashboard_3_customer.png)
 
 **4. Marketing & Campaign Insights**
 
-![Marketing and Campaign Insights](Dashboard/screenshots/dashboard_4_marketing.png)
+![Marketing and Campaign Insights](Dashboard_preview/dashboard_4_marketing.png)
 
 ---
 
