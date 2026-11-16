@@ -1,0 +1,6 @@
+*.tmp
+~$*
+.pbi/
+*.pbi*cache*
+.DS_Store
+Thumbs.db
